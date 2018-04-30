@@ -4,8 +4,8 @@ CrowdCode allows people from all over the world to code together.
 
 ## Authors
 
-* **Jack Hall-Tipping**
 * **Jeff Lee**
+* **Jack Hall-Tipping**
 
 ## Website
 
