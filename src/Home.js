@@ -12,6 +12,7 @@ import Snackbar from 'material-ui/Snackbar';
 import Paper from 'material-ui/Paper';
 import { Redirect } from 'react-router';
 import './css/App.css';
+const API = "https://calm-headland-11311.herokuapp.com/"
 
 class Home extends Component {
   constructor(props) {
@@ -20,8 +21,9 @@ class Home extends Component {
     redirectDeveloper: false,
     emptyPinWarning: false,
     pwOpen: false,
-    password: '',
-    pin: ''
+    pin: '',
+    incorrectPassword: false,
+    invalidPin: false
   }
 }
 
@@ -38,17 +40,37 @@ class Home extends Component {
  }
 
  handleLogin = () => {
-   //if(this.state.password == mongo fetch password)
-   this.props.history.push({
-     pathname: "/manager",
-     state: {pin: this.state.pin}
-   })
-   // else: close, incorrect password snackbar
-   //this.setState({pwOpen: false})
+   var that = this
+   var newPin = this.state.pin
+   fetch(API + this.state.pin)
+    .then(function(response){
+        response.json()
+        .then(function(project) {
+          if(project.result) {
+            that.setState({invalidPin: true,  pwOpen: false})
+          } else if(project.pwd === that.refs.passInput.input.value) {
+            that.props.history.push({
+              pathname: "/manager",
+              state: {pin: newPin}
+            })
+          } else {
+            that.setState({incorrectPassword: true})
+          }
+        })
+    })
+
  }
 
  handleCancel = () => {
    this.setState({pwOpen: false})
+ }
+
+ handleIncPass = () => {
+   this.setState({incorrectPassword: false})
+ }
+
+ handleInvalidPin = () => {
+   this.setState({invalidPin: false})
  }
 
  handlePinInput = () => {
@@ -56,11 +78,20 @@ class Home extends Component {
   }
 
  handleDevelop = () => {
-   if(this.state.pin.length === 6) {
-     this.setState({redirectDeveloper: true})
+   var that = this
+   if(this.state.pin.length !== 6) {
+     this.setState({invalidPin: true})
    } else {
-     this.setState({emptyPinWarning: true})
-   }
+   fetch(API + this.state.pin)
+    .then(response => response.json())
+    .then(function(project) {
+        if(project.result) {
+          that.setState({invalidPin: true})
+        } else {
+          that.setState({redirectDeveloper: true})
+        }
+      })
+    }
  }
 
 
@@ -143,7 +174,7 @@ class Home extends Component {
           modal={false}
           open={this.state.pwOpen}
           >
-          <TextField hintText="Password" />
+          <TextField hintText="Password" ref="passInput" type="password"/>
         </Dialog>
 
         <Snackbar
@@ -151,6 +182,18 @@ class Home extends Component {
           message="Please enter a valid pin"
           autoHideDuration={3000}
           onRequestClose={this.handleCloseEmptyPinWarning}
+        />
+        <Snackbar
+          open={this.state.incorrectPassword}
+          message="Incorrect Password"
+          autoHideDuration={3000}
+          onRequestClose={this.handleIncPass}
+        />
+        <Snackbar
+          open={this.state.invalidPin}
+          message="Invalid Pin"
+          autoHideDuration={3000}
+          onRequestClose={this.handleInvalidPin}
         />
 
         </div>

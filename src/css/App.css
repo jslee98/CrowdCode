@@ -33,3 +33,17 @@ code {
   font-size: large;
   font-weight:400;
 }
+
+.subtitle {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+.centered {
+  text-align: center;
+}
+
+.boldcentered {
+  text-align: center;
+  font-weight: bold;
+}

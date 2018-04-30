@@ -1,42 +1,60 @@
 import React, { Component } from 'react'
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import TextField from 'material-ui/TextField';
-import ContentAdd from 'material-ui/svg-icons/content/add';
-import Done from 'material-ui/svg-icons/action/done';
-import RaisedButton from 'material-ui/RaisedButton';
-import NewProjCss from './css/NewProject.css';
-import FlatButton from 'material-ui/FlatButton';
-import Snackbar from 'material-ui/Snackbar';
-import {Card, CardHeader, CardActions, CardText} from 'material-ui/Card';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import TextField from 'material-ui/TextField'
+import ContentAdd from 'material-ui/svg-icons/content/add'
+import Done from 'material-ui/svg-icons/action/done'
+import RaisedButton from 'material-ui/RaisedButton'
+import NewProjCss from './css/NewProject.css'
+import FlatButton from 'material-ui/FlatButton'
+import Snackbar from 'material-ui/Snackbar'
+import {Card, CardHeader, CardActions, CardText} from 'material-ui/Card'
+import RefreshIndicator from 'material-ui/RefreshIndicator';
+const API = "https://calm-headland-11311.herokuapp.com"
 
-var generatePin = () => {
+
+function createNewPin(){
   var length = 6
   var chars = '0123456789ABCDEF'
   var new_pin = ''
   while(length--) new_pin += chars[(Math.random() * 16) | 0]
-  //if new_pin not in mongodb, set state, else regenerate
   return new_pin
 }
 
+
 class NewProject extends Component {
   constructor(props) {
-    let npin = generatePin()
     super(props)
     this.state = {
-        pin: npin,
-        name: '',
-        password: '',
-        functions: {},
-        saved_fxns: '',
-        empty_function_warning: false,
-        empty_form_warning: false,
-        no_fxn_warning: false
+      pin: null,
+      name: '',
+      password: '',
+      functions: [],
+      saved_fxns: '',
+      empty_function_warning: false,
+      empty_form_warning: false,
+      no_fxn_warning: false,
+      loading: true
     }
     this.functionList = []
     this.handleAddFunction = this.handleAddFunction.bind(this)
-
+  }
+  componentDidMount = () => {
+    this.generatePin()
   }
 
+  generatePin = () => {
+    var that = this
+    var npin = createNewPin()
+    fetch(API + "/" + npin)
+    .then(response => response.json())
+    .then(function(json) {
+      if(json.result) {
+        that.setState({pin: npin, loading: false})
+      } else {
+        that.generatePin()
+      }
+    })
+  }
 
   removeFunction = (index) => {
     this.functionList.splice(index, 1)
@@ -44,6 +62,7 @@ class NewProject extends Component {
   }
 
   handleUpload = () => {
+    var that = this
     if (this.functionList.length === 0) {
       this.setState({no_fxn_warning: true})
 
@@ -51,9 +70,29 @@ class NewProject extends Component {
       this.refs.projPass.input.value.length > 0 &&
       this.refs.projDesc.getValue().length > 0
     ) {
-      this.props.history.push({
-        pathname: "/manager",
-        state: {pin: this.state.pin}
+      fetch(API + "/projects", {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+          {
+            "pin" : this.state.pin,
+            "pwd" : this.refs.projPass.input.value,
+            "project_title" : this.refs.projTitle.input.value,
+            "project_desc" : this.refs.projDesc.getValue(),
+            "functions" : this.state.functions
+          }
+        )
+      })
+      .then(function(res) {
+        console.log(res)
+
+        that.props.history.push({
+          pathname: "/manager",
+          state: {pin: that.state.pin}
+        })
       })
     } else {
       console.log(this.functionList.length)
@@ -71,23 +110,24 @@ class NewProject extends Component {
 
   handleAddFunction() {
     if(this.refs.functionDef.input.value.length > 0 &&
-        this.refs.functionDesc.getValue().length > 0)
-    {
-      this.functionList.push({
-        def: this.refs.functionDef.input.value,
-        desc: this.refs.functionDesc.getValue()
-      })
-      this.refs.functionDef.getInputNode().value=""
-      this.refs.functionDesc.getInputNode().value=""
-      this.updateList()
-    } else {
-      this.setState({empty_function_warning: true})
+      this.refs.functionDesc.getValue().length > 0)
+      {
+        this.functionList.push({
+          function_def: this.refs.functionDef.input.value,
+          function_desc: this.refs.functionDesc.getValue(),
+          proposed_solutions: []
+        })
+        this.refs.functionDef.getInputNode().value=""
+        this.refs.functionDesc.getInputNode().value=""
+        this.updateList()
+      } else {
+        this.setState({empty_function_warning: true})
+      }
     }
-  }
 
-  handleCloseEmptyFunctionWarning = () => {
-    this.setState({empty_function_warning: false})
-  }
+    handleCloseEmptyFunctionWarning = () => {
+      this.setState({empty_function_warning: false})
+    }
 
   updateList = () => {
     const listItems = this.functionList.map((entry, i) =>
@@ -96,13 +136,13 @@ class NewProject extends Component {
       <div className = "col-8">
       <Card>
         <CardHeader
-          title= {<code> {entry.def} </code>}
+          title= {<code> {entry.function_def} </code>}
           subtitle={"Function " + (i + 1)}
           actAsExpander={true}
           showExpandableButton={true}
         />
         <CardText expandable={true}>
-          {entry.desc}
+          {entry.function_desc}
           <CardActions style={{textAlign: 'right' }}>
             <FlatButton onClick={() => this.removeFunction({i})} label="delete"/>
           </CardActions>
@@ -117,6 +157,32 @@ class NewProject extends Component {
 
 
   render(){
+
+    const style = {
+      container: {
+        position: 'relative',
+      },
+      refresh: {
+        marginLeft: '50%'
+      }
+    }
+
+    if (this.state.loading) {
+          return (
+            <MuiThemeProvider>
+            <div style={style.container}>
+
+                <RefreshIndicator
+                  size={50}
+                  left={-25}
+                  top={100}
+                  status="loading"
+                  style={style.refresh}
+                />
+              </div>
+              </MuiThemeProvider>
+          )
+    }
 
 
   return (
