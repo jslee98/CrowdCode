@@ -5,11 +5,10 @@ import Developer from './Developer'
 import Manager from './Manager'
 import NewProject from './NewProject'
 
-// The Main component renders one of the three provided
-// Routes (provided that one matches). Both the /roster
-// and /schedule routes will match any pathname that starts
-// with /roster or /schedule. The / route will only match
-// when the pathname is exactly the string "/"
+/* The main component renders one of 4 routes: home, developer, manager,
+   or new project.
+*/
+
 const Main = () => (
   <main>
     <Switch>

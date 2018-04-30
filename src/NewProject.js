@@ -11,7 +11,13 @@ import {Card, CardHeader, CardActions, CardText} from 'material-ui/Card'
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 const API = "https://calm-headland-11311.herokuapp.com"
 
+/* NewProject.js is the component that allows users to create a new project. It
+   requires that all field be filled before submission. Additionally, a function
+   must be added. The view updates each time adding a card with each function
+   added.
+*/
 
+// Static method to create a new 6 digit hex pin
 function createNewPin(){
   var length = 6
   var chars = '0123456789ABCDEF'
@@ -24,6 +30,7 @@ function createNewPin(){
 class NewProject extends Component {
   constructor(props) {
     super(props)
+    // Initializes states, sets loading to true
     this.state = {
       pin: null,
       name: '',
@@ -38,10 +45,14 @@ class NewProject extends Component {
     this.functionList = []
     this.handleAddFunction = this.handleAddFunction.bind(this)
   }
+
+  // On mount, generates new pin
   componentDidMount = () => {
     this.generatePin()
   }
 
+  // Generate pin creates a new pin. It then check if it exists already in the
+  // database, and calls itself again if it does. Loading is over once complete.
   generatePin = () => {
     var that = this
     var npin = createNewPin()
@@ -56,16 +67,18 @@ class NewProject extends Component {
     })
   }
 
+  // Removes function from list and updates the view
   removeFunction = (index) => {
     this.functionList.splice(index, 1)
     this.updateList()
   }
 
+  // Checks to ensure all fields are filled, then sends data to server and
+  // redirects to manager page
   handleUpload = () => {
     var that = this
     if (this.functionList.length === 0) {
       this.setState({no_fxn_warning: true})
-
     } else if( this.refs.projTitle.input.value.length > 0 &&
       this.refs.projPass.input.value.length > 0 &&
       this.refs.projDesc.getValue().length > 0
@@ -87,27 +100,28 @@ class NewProject extends Component {
         )
       })
       .then(function(res) {
-        console.log(res)
-
         that.props.history.push({
           pathname: "/manager",
           state: {pin: that.state.pin}
         })
       })
     } else {
-      console.log(this.functionList.length)
       this.setState({empty_form_warning: true})
     }
   }
 
+  // Opens snackbar if form isn't filled
   handleCloseEmptyFormWarning = () => {
     this.setState({empty_form_warning: false})
   }
 
+  // Opens snackbar if no functions have been added
   handleCloseNoFxnWarning = () => {
     this.setState({no_fxn_warning: false})
   }
 
+  // Handles adding a function. Adds the data to a list, then maps it to a JSX
+  // object that lists a card component for each function
   handleAddFunction() {
     if(this.refs.functionDef.input.value.length > 0 &&
       this.refs.functionDesc.getValue().length > 0)
@@ -125,10 +139,12 @@ class NewProject extends Component {
       }
     }
 
-    handleCloseEmptyFunctionWarning = () => {
-      this.setState({empty_function_warning: false})
-    }
+  // Closes empty function warning snackbar
+  handleCloseEmptyFunctionWarning = () => {
+    this.setState({empty_function_warning: false})
+  }
 
+  // Maps the functionList to a JSX list of cards so it can be rendered
   updateList = () => {
     const listItems = this.functionList.map((entry, i) =>
       <div className = "row py-3" key={i}>
@@ -158,6 +174,7 @@ class NewProject extends Component {
 
   render(){
 
+    // Style for loading animation
     const style = {
       container: {
         position: 'relative',
@@ -167,21 +184,21 @@ class NewProject extends Component {
       }
     }
 
+    // Renders loading animation if not done loading
     if (this.state.loading) {
-          return (
-            <MuiThemeProvider>
-            <div style={style.container}>
-
-                <RefreshIndicator
+      return (
+        <MuiThemeProvider>
+          <div style={style.container}>
+              <RefreshIndicator
                   size={50}
                   left={-25}
                   top={100}
                   status="loading"
                   style={style.refresh}
                 />
-              </div>
-              </MuiThemeProvider>
-          )
+          </div>
+        </MuiThemeProvider>
+      )
     }
 
 

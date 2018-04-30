@@ -7,6 +7,7 @@ import registerServiceWorker from './registerServiceWorker';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import 'bootstrap/dist/css/bootstrap.css';
 
+// Index.js allows for routing by rendering app.js
 
 ReactDOM.render(
   (<BrowserRouter>

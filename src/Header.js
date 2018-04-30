@@ -2,6 +2,8 @@ import React from 'react'
 import logo from './logo.png'
 import { Link } from 'react-router-dom'
 
+// Simple static header that is displayed on every page
+
 const Header = () => (
   <div className="App">
   <header className="App-header">

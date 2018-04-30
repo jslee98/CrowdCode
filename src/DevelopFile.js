@@ -12,11 +12,15 @@ require('codemirror/lib/codemirror.css');
 require('codemirror/mode/javascript/javascript');
 const API = "https://calm-headland-11311.herokuapp.com/"
 
+/* DevelopFile is the component that allows the public to submit
+   code entries to the server. It fetches the project from the database,
+   and allows people to upload responses.
+*/
 
 class DFile extends Component {
   constructor(props) {
     super(props);
-    
+    // Initializes states, sets loading to true
     this.state = {
       code: [],
       loading: true,
@@ -27,6 +31,7 @@ class DFile extends Component {
     }
   }
 
+  // Checks if the pin in the url is valid on mount
   componentDidMount = () => {
     var that = this
     fetch(API + this.props.match.params.pin)
@@ -42,17 +47,23 @@ class DFile extends Component {
     })
   }
 
+  // Creates JSX list of card components for each function
   renderFunctions = () => {
+
+    // Sets hint code for each function
     var starterCode = []
     for (var i = 0; i < this.state.project.functions.length; i++) {
       starterCode.push("// Enter code here")
     }
+
+    // codeoptions for CodeMirror window
     var codeoptions = {
       mode: 'javascript',
       theme: 'default',
       lineNumbers: true,
       readOnly: false
     }
+    // Creates card for each function
     var functions = this.state.project.functions
     const listItems = functions.map((entry, i) =>
       <div className = "row py-3" key={i}>
@@ -79,21 +90,21 @@ class DFile extends Component {
       <div className = "col-2"></div>
       </div>
     )
+
+    // Once complete, project is done loading
     this.setState({functionCards: listItems, loading:false, code: starterCode})
 
   }
 
+  // Updates code state onChange in each CodeMirror window
   updateCode = (newCode, index) => {
     var codeArray = this.state.code
     codeArray[index] = newCode
     this.setState({code: codeArray})
-    console.log(this.state.code)
   }
 
-  handleCloseSubmission = () => {
-    this.setState({successfulSubmission: false})
-  }
-
+  // Handles function solution submission, sends to database as an "update"
+  // call for MongoDB
   submitFunction = (index) => {
     var that = this
     var updatedFunctions = this.state.project.functions
@@ -116,9 +127,14 @@ class DFile extends Component {
       })
     }
 
+  // Snackbar handler
+  handleCloseSubmission = () => {
+    this.setState({successfulSubmission: false})
+  }
+
   render(){
 
-
+  // Style for loading animation
   const style = {
     container: {
       position: 'relative',
@@ -128,6 +144,7 @@ class DFile extends Component {
     }
   }
 
+  // Displays loading circle while getting ready
   if (this.state.loading && !this.state.invalid) {
         return (
           <MuiThemeProvider>
@@ -145,9 +162,12 @@ class DFile extends Component {
         )
   }
 
+  // If pin is invalid, redirect home
   if(this.state.invalid) {
     return <Redirect push to={"/"}/>
   }
+
+  // Returns main page
   return (
     <MuiThemeProvider>
       <div className="container pb-5">
@@ -189,8 +209,6 @@ class DFile extends Component {
       <section>
         <h3> Function Requests </h3>
         {this.state.functionCards}
-
-
       </section>
       <Snackbar
         open={this.state.successfulSubmission}

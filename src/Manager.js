@@ -6,10 +6,15 @@ import CodeMirror from 'react-codemirror';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 const API = "https://calm-headland-11311.herokuapp.com/"
 
-class Manager extends Component {
+/* Manager.js is the component that allows project managers to view the project
+   and fetch the responses submitted by developers. All info is loaded from
+   database.
+*/
 
+class Manager extends Component {
   constructor(props) {
     super(props);
+    // Initializes states, sets loading to true
     this.state = {
         pin: '',
         project: null,
@@ -17,18 +22,20 @@ class Manager extends Component {
     }
   }
 
+  // Fetches project and renders functions on mount
   componentDidMount = () => {
     var that = this
     fetch(API + this.props.location.state.pin)
       .then(response => response.json())
       .then(function(data){
-        console.log(data)
         that.setState({project: data})
         that.renderFunctions()
       })
   }
 
+  // Creates JSX list of card components for each function
   renderFunctions = () => {
+    // Codeoptions for CodeMirror window. Read-only in manager mode
     var codeoptions = {
         mode: 'javascript',
         theme: 'default',
@@ -36,12 +43,16 @@ class Manager extends Component {
         readOnly: true
     }
 
+    // Creates an array of mapped submission CodeMirror windows for each function
+    // Now, each function displays submissionArray[index] to view a list of
+    // CodeMirror windows of submissions. If no submissions, text displays
+    // "No Submissions Yet"
     var submissionArray = []
     var functions = this.state.project.functions
     for(var i = 0; i < functions.length; i++) {
       let submissions = functions[i].proposed_solutions
       let subList = submissions.map((entry, i) =>
-          <div key = {i}>
+        <div key = {i}>
           <p className ="boldcentered"> Author: {entry.author}, Email: {entry.email} </p>
           <CodeMirror value={entry.solution} options={codeoptions} />
           </div>
@@ -49,10 +60,11 @@ class Manager extends Component {
       if(subList.length === 0) {
         submissionArray.push("No Submissions Yet")
       } else {
-      submissionArray.push(subList)
+        submissionArray.push(subList)
+      }
     }
 
-    }
+    // Creates a card for each function, populated by the submissions
     const listItems = functions.map((entry, i) =>
       <div className = "row py-3" key={i}>
       <div className = "col-2"></div>
@@ -73,16 +85,18 @@ class Manager extends Component {
       <div className = "col-2"></div>
       </div>
     )
+    // Once this is complete, loading is over
     this.setState({functionCards: listItems, loading:false})
-
   }
 
   render(){
 
+  // If manager is accessed without parameters passed (directly), redirect home
   if(this.props.location.state == null) {
     return <Redirect push to={"/"}/>
   }
 
+  // Style for loading animation
   const style = {
     container: {
       position: 'relative',
@@ -92,11 +106,11 @@ class Manager extends Component {
     }
   }
 
+  // If loading, display animation
   if (this.state.loading) {
         return (
           <MuiThemeProvider>
           <div style={style.container}>
-
               <RefreshIndicator
                 size={50}
                 left={-25}

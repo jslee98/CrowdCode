@@ -2,8 +2,8 @@ import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 import DFile from './DevelopFile'
 
-// The Roster component matches one of two different routes
-// depending on the full pathname
+// Base component to route to a certain pin
+
 const Developer = () => (
 
   <Switch>

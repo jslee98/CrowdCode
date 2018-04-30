@@ -14,77 +14,88 @@ import { Redirect } from 'react-router';
 import './css/App.css';
 const API = "https://calm-headland-11311.herokuapp.com/"
 
+/* Home.js is the root component of our app. It displays a screen that
+   allows users to make a new project or access old projects. It includes
+   several snackbar and modal popups for different actions and warnings.
+*/
+
 class Home extends Component {
   constructor(props) {
     super(props);
-  this.state = {
-    redirectDeveloper: false,
-    emptyPinWarning: false,
-    pwOpen: false,
-    pin: '',
-    incorrectPassword: false,
-    invalidPin: false
+    // Initialize states
+    this.state = {
+      redirectDeveloper: false,
+      pwOpen: false,
+      pin: '',
+      incorrectPassword: false,
+      invalidPin: false
+    }
   }
-}
 
- handleManage = () => {
-   if(this.state.pin.length !== 6) {
-     this.setState({emptyPinWarning: true})
-   } else {
-     this.setState({pwOpen: true})
+  // Handles the manage button response, ensures pin is correct length before login
+  handleManage = () => {
+    if(this.state.pin.length !== 6) {
+      this.setState({invalidPin: true})
+    } else {
+      this.setState({pwOpen: true})
+    }
   }
- }
 
- handleCloseEmptyPinWarning = () => {
-   this.setState({emptyPinWarning: false})
- }
-
- handleLogin = () => {
-   var that = this
-   var newPin = this.state.pin
-   fetch(API + this.state.pin)
+  // Handles login requests. Checks the password matches what is on file.
+  // If no match, snackbar alert
+  // If match, redirect to /manager with the pin privately transmitted in data,
+  // not in the URL itself
+  handleLogin = () => {
+    var that = this
+    var newPin = this.state.pin
+    fetch(API + this.state.pin)
     .then(function(response){
-        response.json()
-        .then(function(project) {
-          if(project.result) {
-            that.setState({invalidPin: true,  pwOpen: false})
-          } else if(project.pwd === that.refs.passInput.input.value) {
-            that.props.history.push({
-              pathname: "/manager",
-              state: {pin: newPin}
-            })
-          } else {
-            that.setState({incorrectPassword: true})
-          }
-        })
+      response.json()
+      .then(function(project) {
+        if(project.result) {
+          that.setState({invalidPin: true,  pwOpen: false})
+        } else if(project.pwd === that.refs.passInput.input.value) {
+          that.props.history.push({
+            pathname: "/manager",
+            state: {pin: newPin}
+          })
+        } else {
+          that.setState({incorrectPassword: true})
+        }
+      })
     })
 
- }
+  }
 
- handleCancel = () => {
-   this.setState({pwOpen: false})
- }
+  // Closes login modal
+  handleCancel = () => {
+    this.setState({pwOpen: false})
+  }
 
- handleIncPass = () => {
-   this.setState({incorrectPassword: false})
- }
+  // Handles incorrect password
+  handleIncPass = () => {
+    this.setState({incorrectPassword: false})
+  }
 
- handleInvalidPin = () => {
-   this.setState({invalidPin: false})
- }
+  // Handles if pin is not valid/less than 6 chars
+  handleInvalidPin = () => {
+    this.setState({invalidPin: false})
+  }
 
- handlePinInput = () => {
+  // Updates pin state on textfield change
+  handlePinInput = () => {
     this.setState({pin: this.refs.pinInput.input.value})
   }
 
- handleDevelop = () => {
-   var that = this
-   if(this.state.pin.length !== 6) {
-     this.setState({invalidPin: true})
-   } else {
-   fetch(API + this.state.pin)
-    .then(response => response.json())
-    .then(function(project) {
+  // Handles develop mode, checks if pin is valid then redirects
+  handleDevelop = () => {
+    var that = this
+    if(this.state.pin.length !== 6) {
+      this.setState({invalidPin: true})
+    } else {
+      fetch(API + this.state.pin)
+      .then(response => response.json())
+      .then(function(project) {
         if(project.result) {
           that.setState({invalidPin: true})
         } else {
@@ -92,14 +103,16 @@ class Home extends Component {
         }
       })
     }
- }
-
+  }
 
   render() {
+
+    // Redirects to developer if redirect is true
     if(this.state.redirectDeveloper) {
       return <Redirect push to={"/developer/" + this.state.pin}/>
     }
 
+    // Data for login modal
     const loginActions = [
       <FlatButton
         label="Cancel"
@@ -112,6 +125,8 @@ class Home extends Component {
         onClick={this.handleLogin}
       />
     ]
+
+    // Style for paper background
     const style = {
       height: 420,
       width:700,
@@ -119,6 +134,7 @@ class Home extends Component {
       textAlign: 'center',
       display: 'inline-block',
     }
+
     return (
       <MuiThemeProvider>
       <div className="App">
@@ -176,13 +192,6 @@ class Home extends Component {
           >
           <TextField hintText="Password" ref="passInput" type="password"/>
         </Dialog>
-
-        <Snackbar
-          open={this.state.emptyPinWarning}
-          message="Please enter a valid pin"
-          autoHideDuration={3000}
-          onRequestClose={this.handleCloseEmptyPinWarning}
-        />
         <Snackbar
           open={this.state.incorrectPassword}
           message="Incorrect Password"
@@ -195,7 +204,6 @@ class Home extends Component {
           autoHideDuration={3000}
           onRequestClose={this.handleInvalidPin}
         />
-
         </div>
       </div>
       </MuiThemeProvider>
