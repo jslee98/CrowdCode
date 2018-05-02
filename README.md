@@ -27,7 +27,7 @@ The backend was built by hosting a MongoDB database on an EC2 Amazon Web Server.
 
 The CrowdCode database consists of a MongoDB instance hosted on an AWS Ubuntu EC2 server. The data model for the collection is as follows:
 
-Markup: '''javascript
+Markup: ```javascript
 
 {
     "_id" : ObjectId("xxx"),
@@ -54,7 +54,7 @@ Markup: '''javascript
         }
     ]
 }
-'''
+```
 
 ## Download/run
 
