@@ -9,7 +9,7 @@ import FlatButton from 'material-ui/FlatButton'
 import Snackbar from 'material-ui/Snackbar'
 import {Card, CardHeader, CardActions, CardText} from 'material-ui/Card'
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-const API = "https://calm-headland-11311.herokuapp.com"
+const API = "https://crowdcode.herokuapp.com"
 
 /* NewProject.js is the component that allows users to create a new project. It
    requires that all field be filled before submission. Additionally, a function

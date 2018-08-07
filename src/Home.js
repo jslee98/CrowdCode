@@ -12,7 +12,7 @@ import Snackbar from 'material-ui/Snackbar';
 import Paper from 'material-ui/Paper';
 import { Redirect } from 'react-router';
 import './css/App.css';
-const API = "https://calm-headland-11311.herokuapp.com/"
+const API = "https://crowdcode.herokuapp.com/"
 
 /* Home.js is the root component of our app. It displays a screen that
    allows users to make a new project or access old projects. It includes

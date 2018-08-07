@@ -4,7 +4,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import {Card, CardHeader, CardText} from 'material-ui/Card';
 import CodeMirror from 'react-codemirror';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-const API = "https://calm-headland-11311.herokuapp.com/"
+const API = "https://crowdcode.herokuapp.com/"
 
 /* Manager.js is the component that allows project managers to view the project
    and fetch the responses submitted by developers. All info is loaded from

@@ -10,7 +10,7 @@ import Snackbar from 'material-ui/Snackbar'
 
 require('codemirror/lib/codemirror.css');
 require('codemirror/mode/javascript/javascript');
-const API = "https://calm-headland-11311.herokuapp.com/"
+const API = "https://crowdcode.herokuapp.com/"
 
 /* DevelopFile is the component that allows the public to submit
    code entries to the server. It fetches the project from the database,
