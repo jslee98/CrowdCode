@@ -4,21 +4,17 @@ const app = express()
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json());
-app.use(function(req, res, next) { res.header("Access-Control-Allow-Origin", "*"); res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept"); res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');next(); });
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  next();
+});
 app.set('view engine', 'ejs')
-
 const MongoClient = require('mongodb').MongoClient
-
 var db = null
 
-//creates RESTful API
-//https://calm-headland-11311.herokuapp.com/
-//Above is the link
-//Endpoint is the pin used by /pin or an example https://calm-headland-11311.herokuapp.com//100001
-//if a pin exists it displays the json
-//otherwise it displays an error
-
-MongoClient.connect('mongodb://admin:password@18.191.29.110/projectDB', (err, client) => {
+MongoClient.connect('mongodb://admin:password@18.222.30.54/projectDB', (err, client) => {
   //MongoDB hosted on AWS
   if (err) return console.log(err)
   db = client.db('projectDB')
